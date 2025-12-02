@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections; // Necessário para o IEnumerator
 
 public class FaseManager : MonoBehaviour
 {
@@ -8,25 +9,24 @@ public class FaseManager : MonoBehaviour
     [Header("Estados e Configurações")]
     public PrologoState estadoAtual;
     public int totalCientistas = 3;
-    
     [Tooltip("Escreva aqui o nome EXATO da cena que deve carregar ao terminar.")]
-    public string nomeProximaCena = "Fase2"; // <--- NOVO CAMPO
+    public string nomeProximaCena = "Dia1"; // Atualize se necessário
+
+    [Header("Intro da Fase (Capa)")]
+    public GameObject painelCapa; // <--- ARRASTE A IMAGEM DO PROLOGO AQUI
+    public float tempoCapa = 3f;
 
     [Header("Configuração de Mensagens (Sistema)")]
-    [Tooltip("Mensagem quando o player tenta usar a máquina SEM falar com os cientistas.")]
     [TextArea(2, 5)]
-    public string msgFaltamCientistas = "SISTEMA: Acesso Negado. Converse com os cientistas para obter as coordenadas.";
-
-    [Tooltip("Mensagem quando o player resolveu o puzzle mas precisa falar com os cientistas DE NOVO.")]
+    public string msgFaltamCientistas = "SISTEMA: Acesso Negado. Converse com os cientistas.";
     [TextArea(2, 5)]
-    public string msgFaltamCientistasPosPuzzle = "SISTEMA: Calibração concluída. Fale com a equipe para confirmar a viagem.";
+    public string msgFaltamCientistasPosPuzzle = "SISTEMA: Calibração concluída. Fale com a equipe.";
 
     [Header("Referências")]
     public NarratorController narrator;
     public GameObject puzzlePanel;
     public DialogueUI2D dialogueUI;
 
-    // Contadores internos
     private int cientistasConversados = 0;
 
     private void Awake()
@@ -35,15 +35,28 @@ public class FaseManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
-        // Garante que o painel comece fechado
+        // 1. Configuração Inicial (Esconde tudo que não deve aparecer)
         if (puzzlePanel != null) puzzlePanel.SetActive(false);
-
-        // Correção do Warning: Busca a UI se estiver vazia
         if (dialogueUI == null) dialogueUI = FindFirstObjectByType<DialogueUI2D>();
+        
+        // 2. ATIVA A CAPA (Intro)
+        if (painelCapa != null) 
+        {
+            painelCapa.SetActive(true);
+            // TRAVA TUDO POR 3 SEGUNDOS
+            yield return new WaitForSeconds(tempoCapa);
+            // SOME A CAPA
+            painelCapa.SetActive(false);
+        }
 
-        // Configuração inicial do Estado
+        // 3. INICIA O JOGO REALMENTE
+        IniciarLogicaDaFase();
+    }
+
+    private void IniciarLogicaDaFase()
+    {
         estadoAtual = PrologoState.Inicio;
 
         if (narrator != null)
@@ -56,7 +69,6 @@ public class FaseManager : MonoBehaviour
         }
         else
         {
-            // Fallback caso não tenha narrador
             estadoAtual = PrologoState.ConversarCientistas;
         }
     }

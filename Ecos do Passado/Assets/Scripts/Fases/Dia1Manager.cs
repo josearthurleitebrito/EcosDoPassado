@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using System.Collections; // Importante
 
 public class Dia1Manager : MonoBehaviour
 {
@@ -10,18 +10,18 @@ public class Dia1Manager : MonoBehaviour
     public Dia1State estadoAtual;
 
     [Header("Configuração de Navegação")]
-    [Tooltip("Nome exato da cena que carrega ao vencer (ex: Dia2)")]
     public string nomeProximaCena = "Dia2"; 
+
+    [Header("Intro da Fase (Capa)")]
+    public GameObject painelCapa; // <--- ARRASTE A IMAGEM DO DIA 1 AQUI
+    public float tempoCapa = 3f;
 
     [Header("Referências")]
     public MensageiroRunner mensageiroScript;
     public NarratorController narrator;
-    public GameObject painelEscolha; // O Painel com as 2 cartas para escolher
+    public GameObject painelEscolha; 
+    public GameObject telaGameOver;
 
-    [Header("Telas Finais")]
-    public GameObject telaGameOver; // <--- NOVO: Arraste o Painel de Derrota aqui
-
-    // Controle interno das pistas
     private bool falouComTaberneiro = false;
     private bool falouComMarinheiro = false;
 
@@ -30,16 +30,28 @@ public class Dia1Manager : MonoBehaviour
         if (Instance == null) Instance = this;
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
-        // 1. Garante que as UIs começam fechadas
+        // 1. Configurações de UI (Esconde tudo)
         if(painelEscolha != null) painelEscolha.SetActive(false);
-        if(telaGameOver != null) telaGameOver.SetActive(false); // <--- NOVO
+        if(telaGameOver != null) telaGameOver.SetActive(false);
 
-        // 2. Define estado inicial (Intro)
+        // 2. EXIBE A CAPA
+        if (painelCapa != null)
+        {
+            painelCapa.SetActive(true);
+            yield return new WaitForSeconds(tempoCapa);
+            painelCapa.SetActive(false);
+        }
+
+        // 3. INICIA O JOGO
+        IniciarLogicaDaFase();
+    }
+
+    private void IniciarLogicaDaFase()
+    {
         estadoAtual = Dia1State.InvestigarTaverna; 
 
-        // 3. Toca a Intro (Player fica travado pelo script do Narrador)
         if (narrator != null)
         {
             narrator.TocarIntro(() => 

@@ -14,39 +14,39 @@ public class Dia2Manager : MonoBehaviour
     public float tempoMaximo = 60.0f;
     public int barrisParaEncontrar = 3;
 
+    [Header("Intro da Fase (Capa)")]
+    public GameObject painelCapa; // <--- ARRASTE A IMAGEM DO DIA 2 AQUI
+    public float tempoCapa = 3f;
+
     [Header("Mensagens")]
     [TextArea(2, 3)]
-    public string msgInicioDesafio = "ALERTA: Remova a pólvora de 3 barris antes que exploda!";
+    public string msgInicioDesafio = "ALERTA: Remova a pólvora de 3 barris!";
     [TextArea(2, 3)]
-    public string msgFimDesafio = "Ameaça neutralizada! Fale com Carolina, Mateus e Lucas.";
+    public string msgFimDesafio = "Ameaça neutralizada! Fale com a equipe.";
 
-    [Header("Referências de UI")]
+    [Header("UI")]
     public DialogueUI2D dialogueUI;
     public GameObject painelMissao;
     public TMP_Text textoTimer;
     public TMP_Text textoContador;
+    public GameObject telaWin;
+    public GameObject telaGameOver;
 
-    [Header("Telas Finais (Arraste os Painéis)")]
-    public GameObject telaWin;      // <--- NOVO
-    public GameObject telaGameOver; // <--- NOVO
-
-    [Header("Referências de Cena")]
+    [Header("Narrador")]
     public NarratorController narrator;
 
     // Variáveis Internas
     private float tempoAtual;
     private int barrisEncontrados = 0;
-    private bool falouCarolina = false;
-    private bool falouMateus = false;
-    private bool falouLucas = false;
-    private Coroutine corrotinaMensagem; // Para controlar o tempo da mensagem
+    private bool falouCarolina = false, falouMateus = false, falouLucas = false;
+    private Coroutine corrotinaMensagem;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         tempoAtual = tempoMaximo;
         
@@ -56,6 +56,21 @@ public class Dia2Manager : MonoBehaviour
         if(telaGameOver != null) telaGameOver.SetActive(false);
         
         AtualizarUI();
+
+        // 1. MOSTRA A CAPA
+        if (painelCapa != null)
+        {
+            painelCapa.SetActive(true);
+            yield return new WaitForSeconds(tempoCapa);
+            painelCapa.SetActive(false);
+        }
+
+        // 2. INICIA O JOGO
+        IniciarLogicaDaFase();
+    }
+
+    private void IniciarLogicaDaFase()
+    {
         estadoAtual = Dia2State.Intro;
 
         if (narrator != null)
@@ -72,13 +87,8 @@ public class Dia2Manager : MonoBehaviour
         if (estadoAtual == Dia2State.ProcurandoBarris)
         {
             tempoAtual -= Time.deltaTime;
-            
             if(textoTimer != null) textoTimer.text = Mathf.CeilToInt(tempoAtual).ToString() + "s";
-
-            if (tempoAtual <= 0)
-            {
-                GameOver();
-            }
+            if (tempoAtual <= 0) GameOver();
         }
     }
 
