@@ -18,6 +18,9 @@ public class Dia1Manager : MonoBehaviour
     public NarratorController narrator;
     public GameObject painelEscolha; // O Painel com as 2 cartas para escolher
 
+    [Header("Telas Finais")]
+    public GameObject telaGameOver; // <--- NOVO: Arraste o Painel de Derrota aqui
+
     // Controle interno das pistas
     private bool falouComTaberneiro = false;
     private bool falouComMarinheiro = false;
@@ -29,11 +32,11 @@ public class Dia1Manager : MonoBehaviour
 
     private void Start()
     {
-        // 1. Garante que a UI de escolha começa fechada
+        // 1. Garante que as UIs começam fechadas
         if(painelEscolha != null) painelEscolha.SetActive(false);
+        if(telaGameOver != null) telaGameOver.SetActive(false); // <--- NOVO
 
         // 2. Define estado inicial (Intro)
-        // Você pode criar um estado 'Intro' no Enum ou apenas assumir que 'InvestigarTaverna' começa travado
         estadoAtual = Dia1State.InvestigarTaverna; 
 
         // 3. Toca a Intro (Player fica travado pelo script do Narrador)
@@ -42,7 +45,6 @@ public class Dia1Manager : MonoBehaviour
             narrator.TocarIntro(() => 
             {
                 Debug.Log("Intro Finalizada. Objetivo: Investigar Taverna.");
-                // Aqui o player é liberado para andar
             });
         }
     }
@@ -61,7 +63,6 @@ public class Dia1Manager : MonoBehaviour
             {
                 estadoAtual = Dia1State.FalarComEscravo;
                 Debug.Log("Objetivo Atualizado: Vá ao Armazém falar com o Escravo!");
-                // Opcional: Tocar um som ou mostrar aviso na tela
             }
         }
         // ETAPA 2: ARMAZÉM
@@ -85,10 +86,7 @@ public class Dia1Manager : MonoBehaviour
     private void TriggerMensageiro()
     {
         Debug.Log("Escravo falou! Mensageiro começou a correr!");
-        
         estadoAtual = Dia1State.MensageiroFugindo;
-        
-        // Ativa o script de corrida do NPC
         if(mensageiroScript != null) mensageiroScript.IniciarCorrida();
     }
 
@@ -101,14 +99,15 @@ public class Dia1Manager : MonoBehaviour
     // Método chamado pelos Botões da UI (Carta Certa / Carta Errada)
     public void EscolherCarta(bool isCartaCorreta)
     {
+        // Fecha o painel de escolha
         if(painelEscolha != null) painelEscolha.SetActive(false);
 
         if (isCartaCorreta)
         {
-            // VITÓRIA
+            // --- VITÓRIA ---
             estadoAtual = Dia1State.Vitoria;
             
-            // Toca a fala final do narrador e DEPOIS carrega a próxima fase
+            // Toca a fala final e carrega o Dia 2
             if (narrator != null)
             {
                 narrator.TocarFinal(() => 
@@ -123,12 +122,20 @@ public class Dia1Manager : MonoBehaviour
         }
         else
         {
-            // DERROTA
+            // --- DERROTA (GAME OVER) ---
             estadoAtual = Dia1State.GameOver;
             Debug.Log("GAME OVER - Carta errada!");
             
-            // Reinicia a cena atual
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            // Em vez de reiniciar direto, abrimos o painel
+            if (telaGameOver != null)
+            {
+                telaGameOver.SetActive(true);
+            }
+            else
+            {
+                // Fallback caso esqueça de arrastar o painel
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
         }
     }
 }

@@ -5,22 +5,26 @@ public class NPCDialogue2D : MonoBehaviour
     [Header("Configuração de Identificação")]
     public string npcName = "Cientista";
     
-    [Tooltip("Se marcado, este NPC conta para o progresso do puzzle.")]
+    [Tooltip("Se marcado, este NPC conta para o progresso do puzzle (Usado no Prólogo).")]
     public bool isRequiredForPuzzle = true; 
 
-    [Header("Diálogos da História")]
+    [Header("Diálogos Padrão")]
     [TextArea(2, 4)]
-    [Tooltip("O que ele diz quando você chega no laboratório.")]
+    [Tooltip("O que ele diz quando você chega (Padrão).")]
     public string[] dialogoAntesDoPuzzle;
 
+    [Header("Prólogo (Fase 0)")]
     [TextArea(2, 4)]
-    [Tooltip("O que ele diz DEPOIS que você resolveu o puzzle.")]
+    [Tooltip("O que ele diz DEPOIS que você resolveu o puzzle dos fios.")]
     public string[] dialogoDepoisDoPuzzle;
     
-    [Header("Diálogos Genéricos (Opcional)")]
     [TextArea(1, 2)]
-    [Tooltip("Frase curta se o player falar com ele de novo sem o estado ter mudado.")]
     public string[] dialogoRepetido;
+
+    [Header("Fase 2 (Acampamento)")]
+    [Tooltip("O que eles dizem DEPOIS que você tirou a pólvora.")]
+    [TextArea(2, 4)]
+    public string[] dialogoDia2Final; // <--- ESSE ERA O CAMPO QUE FALTAVA
 
     // Variável interna para o array que será usado no momento
     private string[] sentencesParaUsar; 
@@ -31,34 +35,22 @@ public class NPCDialogue2D : MonoBehaviour
 
     private int index = 0;
     private bool isTalking = false;
-    
-    // Controle para saber se já contou para o progresso na etapa atual
     private bool jaConversouNessaEtapa = false;
 
-  [System.Obsolete]
-  void Start()
+    void Start()
     {
-        // Auto-assign para evitar NullReferenceException
-        if (dialogueUI == null)
-            dialogueUI = FindObjectOfType<DialogueUI2D>();
-        
-        if (playerController == null)
-            playerController = FindObjectOfType<PlayerController>();
-
-        // Inscreva-se no evento de reset (se houver) ou deixe o Manager controlar
+        if (dialogueUI == null) dialogueUI = FindFirstObjectByType<DialogueUI2D>();
+        if (playerController == null) playerController = FindFirstObjectByType<PlayerController>();
     }
 
-    // Método chamado pelo seu script 'PlayerInteract' (Raycast ou Trigger)
     public void Interact()
     {
         if (isTalking)
         {
-            // Se já está falando, o botão de interação serve para AVANÇAR o texto
             NextSentence();
         }
         else
         {
-            // Se não está falando, define o texto correto e COMEÇA
             DefinirDialogoCorreto();
             StartDialogue();
         }
@@ -66,35 +58,50 @@ public class NPCDialogue2D : MonoBehaviour
 
     private void DefinirDialogoCorreto()
     {
-        // Se não tiver gerenciador, usa o padrão (antes do puzzle)
-        if (FaseManager.Instance == null)
+        // --- LÓGICA DA FASE 2 (ACAMPAMENTO) ---
+        if (Dia2Manager.Instance != null)
         {
-            sentencesParaUsar = dialogoAntesDoPuzzle;
-            return;
+            // Se já desarmou as bombas ou venceu
+            if (Dia2Manager.Instance.estadoAtual == Dia2State.RelatarEquipe || 
+                Dia2Manager.Instance.estadoAtual == Dia2State.Vitoria)
+            {
+                if (dialogoDia2Final != null && dialogoDia2Final.Length > 0)
+                    sentencesParaUsar = dialogoDia2Final;
+                else
+                    sentencesParaUsar = dialogoAntesDoPuzzle;
+            }
+            else
+            {
+                sentencesParaUsar = dialogoAntesDoPuzzle;
+            }
+            return; // Sai do método, já decidiu
         }
 
-        PrologoState estado = FaseManager.Instance.estadoAtual;
+        // --- LÓGICA DO PRÓLOGO (LABORATÓRIO) ---
+        if (FaseManager.Instance != null)
+        {
+            PrologoState estado = FaseManager.Instance.estadoAtual;
 
-        // Lógica de seleção de texto baseada no estado do FaseManager
-        if (estado == PrologoState.Inicio || estado == PrologoState.ConversarCientistas)
-        {
-            // Se já falou, pode mandar um texto genérico ou repetir o mesmo
-            sentencesParaUsar = jaConversouNessaEtapa && dialogoRepetido.Length > 0 ? 
-                                dialogoRepetido : dialogoAntesDoPuzzle;
+            if (estado == PrologoState.PodeResolverPuzzle)
+            {
+                sentencesParaUsar = new string[] { "Vá consertar o painel primeiro!" };
+            }
+            else if (estado == PrologoState.PuzzleResolvido || estado == PrologoState.ProntoParaViajar)
+            {
+                 sentencesParaUsar = jaConversouNessaEtapa && dialogoRepetido.Length > 0 ? 
+                                    dialogoRepetido : dialogoDepoisDoPuzzle;
+            }
+            else
+            {
+                // Inicio ou ConversarCientistas
+                sentencesParaUsar = jaConversouNessaEtapa && dialogoRepetido.Length > 0 ? 
+                                    dialogoRepetido : dialogoAntesDoPuzzle;
+            }
+            return; // Sai do método
         }
-        else if (estado == PrologoState.PodeResolverPuzzle)
-        {
-            sentencesParaUsar = new string[] { "O que você está esperando? Vá consertar o painel!" };
-        }
-        else if (estado == PrologoState.PuzzleResolvido || estado == PrologoState.ProntoParaViajar)
-        {
-             sentencesParaUsar = jaConversouNessaEtapa && dialogoRepetido.Length > 0 ? 
-                                dialogoRepetido : dialogoDepoisDoPuzzle;
-        }
-        else
-        {
-            sentencesParaUsar = dialogoAntesDoPuzzle; // Fallback
-        }
+
+        // --- LÓGICA DO DIA 1 (PORTO) OU PADRÃO ---
+        sentencesParaUsar = dialogoAntesDoPuzzle;
     }
 
     public void StartDialogue()
@@ -104,11 +111,9 @@ public class NPCDialogue2D : MonoBehaviour
         isTalking = true;
         index = 0;
 
-        // Trava o player
         if (playerController != null)
         {
             playerController.enabled = false;
-            // Se tiver animação de Idle, force aqui
             playerController.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
         }
 
@@ -131,40 +136,37 @@ public class NPCDialogue2D : MonoBehaviour
     public void EndDialogue()
     {
         isTalking = false;
+        if (dialogueUI != null) dialogueUI.HideDialogue();
+        if (playerController != null) playerController.enabled = true;
 
-        if (dialogueUI != null)
-            dialogueUI.HideDialogue();
+        // --- AVISOS AOS GERENTES ---
 
-        if (playerController != null)
-            playerController.enabled = true;
-
-        // Tenta avisar o Dia1Manager se ele existir na cena
-        if (Dia1Manager.Instance != null)
-        {
-            Dia1Manager.Instance.RegistrarConversaNPC(npcName);
-        }
-
+        // Avisa Fase 2
         if (Dia2Manager.Instance != null)
         {
             Dia2Manager.Instance.RegistrarConversaNPC(npcName);
         }
 
-        // --- LÓGICA DE PROGRESSO ---
+        // Avisa Dia 1
+        if (Dia1Manager.Instance != null)
+        {
+            Dia1Manager.Instance.RegistrarConversaNPC(npcName);
+        }
+
+        // Avisa Prólogo (Com lógica de contagem)
         if (FaseManager.Instance != null && isRequiredForPuzzle)
         {
-            // Verifica se estamos numa etapa que requer contagem
             bool etapaRequerConversa = (FaseManager.Instance.estadoAtual == PrologoState.ConversarCientistas || 
                                         FaseManager.Instance.estadoAtual == PrologoState.PuzzleResolvido);
 
             if (etapaRequerConversa && !jaConversouNessaEtapa)
             {
                 FaseManager.Instance.RegistrarConversaCientista();
-                jaConversouNessaEtapa = true; // Marca que já falou nesta rodada
+                jaConversouNessaEtapa = true; 
             }
         }
     }
 
-    // Chamado pelo FaseManager quando o puzzle é resolvido para permitir falar de novo
     public void ResetarConversaParaNovaEtapa()
     {
         jaConversouNessaEtapa = false;

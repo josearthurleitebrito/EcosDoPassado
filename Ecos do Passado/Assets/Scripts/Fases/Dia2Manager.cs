@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System.Collections; // Necessário para Coroutines
 
 public class Dia2Manager : MonoBehaviour
 {
@@ -13,18 +14,21 @@ public class Dia2Manager : MonoBehaviour
     public float tempoMaximo = 60.0f;
     public int barrisParaEncontrar = 3;
 
-    [Header("Mensagens de Missão (Editáveis)")]
+    [Header("Mensagens")]
     [TextArea(2, 3)]
-    public string msgInicioDesafio = "ALERTA: O Viajante sabotou o campo! Remova a pólvora de 3 barris antes que exploda!";
-    
+    public string msgInicioDesafio = "ALERTA: Remova a pólvora de 3 barris antes que exploda!";
     [TextArea(2, 3)]
-    public string msgFimDesafio = "Ameaça neutralizada! Fale com Carolina, Mateus e Lucas imediatamente.";
+    public string msgFimDesafio = "Ameaça neutralizada! Fale com Carolina, Mateus e Lucas.";
 
     [Header("Referências de UI")]
     public DialogueUI2D dialogueUI;
     public GameObject painelMissao;
     public TMP_Text textoTimer;
     public TMP_Text textoContador;
+
+    [Header("Telas Finais (Arraste os Painéis)")]
+    public GameObject telaWin;      // <--- NOVO
+    public GameObject telaGameOver; // <--- NOVO
 
     [Header("Referências de Cena")]
     public NarratorController narrator;
@@ -35,6 +39,7 @@ public class Dia2Manager : MonoBehaviour
     private bool falouCarolina = false;
     private bool falouMateus = false;
     private bool falouLucas = false;
+    private Coroutine corrotinaMensagem; // Para controlar o tempo da mensagem
 
     private void Awake()
     {
@@ -44,9 +49,13 @@ public class Dia2Manager : MonoBehaviour
     private void Start()
     {
         tempoAtual = tempoMaximo;
+        
+        // Garante que tudo começa desligado
         if(painelMissao != null) painelMissao.SetActive(false);
+        if(telaWin != null) telaWin.SetActive(false);
+        if(telaGameOver != null) telaGameOver.SetActive(false);
+        
         AtualizarUI();
-
         estadoAtual = Dia2State.Intro;
 
         if (narrator != null)
@@ -92,12 +101,10 @@ public class Dia2Manager : MonoBehaviour
     private void IniciarDesafio()
     {
         estadoAtual = Dia2State.ProcurandoBarris;
-        
         if(painelMissao != null) painelMissao.SetActive(true);
         
-        // --- AQUI ESTÁ O DIÁLOGO DO NARRADOR/SISTEMA ---
-        // Ele usa a variável que você escreveu no Inspector
-        dialogueUI.ShowDialogue("Sistema", msgInicioDesafio, null);
+        // Mensagem de SISTEMA: Dura 5 segundos
+        MostrarMensagemTemporaria("Sistema", msgInicioDesafio, 5.0f);
     }
 
     public void ChecarBarril(BarrilInteract barril)
@@ -113,25 +120,42 @@ public class Dia2Manager : MonoBehaviour
             }
             else
             {
-                dialogueUI.ShowDialogue("Sistema", $"Pólvora removida! Faltam {barrisParaEncontrar - barrisEncontrados}.", null);
+                // Mensagem de BARRIL: Dura 1 segundo
+                MostrarMensagemTemporaria("Sistema", $"Pólvora removida! Faltam {barrisParaEncontrar - barrisEncontrados}.", 1.0f);
             }
         }
         else
         {
-            dialogueUI.ShowDialogue("Sistema", "Barril vazio. O tempo está correndo!", null);
+            // Mensagem de BARRIL: Dura 1 segundo
+            MostrarMensagemTemporaria("Sistema", "Barril vazio.", 1.0f);
         }
+    }
+
+    private void MostrarMensagemTemporaria(string titulo, string msg, float duracao)
+    {
+        // Se já tiver uma mensagem contando tempo, cancela ela para não bugar
+        if (corrotinaMensagem != null) StopCoroutine(corrotinaMensagem);
+        
+        dialogueUI.ShowDialogue(titulo, msg, null);
+        corrotinaMensagem = StartCoroutine(FecharDialogoRoutine(duracao));
+    }
+
+    private IEnumerator FecharDialogoRoutine(float tempo)
+    {
+        yield return new WaitForSeconds(tempo);
+        dialogueUI.HideDialogue();
+        corrotinaMensagem = null;
     }
 
     private void FaseConcluida_FalarComEquipe()
     {
         estadoAtual = Dia2State.RelatarEquipe;
         
-        // --- AQUI ESTÁ O DIÁLOGO DE FALAR COM A EQUIPE ---
-        // Ele usa a variável que você escreveu no Inspector
-        dialogueUI.ShowDialogue("Sistema", msgFimDesafio, null);
+        // Mensagem de SISTEMA: Dura 5 segundos
+        MostrarMensagemTemporaria("Sistema", msgFimDesafio, 5.0f);
         
-        if(textoContador != null) textoContador.text = "Avise a Equipe!";
-        if(textoTimer != null) textoTimer.text = "--"; 
+        // Remove texto do contador como pedido
+        if(painelMissao != null) painelMissao.SetActive(false);
     }
 
     private void ChecarVitoriaFinal()
@@ -147,9 +171,12 @@ public class Dia2Manager : MonoBehaviour
         estadoAtual = Dia2State.Vitoria;
         if(painelMissao != null) painelMissao.SetActive(false);
 
+        Debug.Log("JOGO FINALIZADO!");
+
         narrator.TocarFinal(() => 
         {
-            SceneManager.LoadScene("MenuPrincipal"); 
+            // Ativa o Painel de Win
+            if (telaWin != null) telaWin.SetActive(true);
         });
     }
 
@@ -162,12 +189,11 @@ public class Dia2Manager : MonoBehaviour
     private void GameOver()
     {
         estadoAtual = Dia2State.GameOver;
-        dialogueUI.ShowDialogue("Sistema", "Tempo esgotado! Game Over.", null);
-        Invoke("ReiniciarFase", 3f);
-    }
+        
+        dialogueUI.HideDialogue(); // Fecha qualquer texto
+        if(painelMissao != null) painelMissao.SetActive(false);
 
-    private void ReiniciarFase()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        // Ativa o Painel de Game Over
+        if (telaGameOver != null) telaGameOver.SetActive(true);
     }
 }

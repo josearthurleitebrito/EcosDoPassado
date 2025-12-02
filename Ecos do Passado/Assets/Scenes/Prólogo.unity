@@ -309,6 +309,7 @@ MonoBehaviour:
   dialogoDepoisDoPuzzle:
   - "Interferir? Eu jamais faria isso\u2026"
   dialogoRepetido: []
+  dialogoDia2Final: []
   dialogueUI: {fileID: 1606390351499126681}
   playerController: {fileID: 0}
 --- !u!50 &275154243
@@ -1183,37 +1184,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f2bc86105f12f245854cf7b1ff51456, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimeMachineTrigger
---- !u!1 &896497226
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 896497227}
-  m_Layer: 0
-  m_Name: '[SYSTEMS]'
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &896497227
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 896497226}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &905709675
 GameObject:
   m_ObjectHideFlags: 0
@@ -1406,6 +1376,7 @@ MonoBehaviour:
   - "Nossa primeira miss\xE3o ser\xE1 no Brasil, setembro de 1822. Uma semana antes
     da Independ\xEAncia."
   dialogoRepetido: []
+  dialogoDia2Final: []
   dialogueUI: {fileID: 1606390351499126681}
   playerController: {fileID: 0}
 --- !u!50 &905709684
@@ -1907,6 +1878,7 @@ MonoBehaviour:
   - "Sem esse grito \xE0s margens do Ipiranga, o Brasil teria permanecido uma col\xF4nia.
     Vamos observar de perto a constru\xE7\xE3o de uma na\xE7\xE3o."
   dialogoRepetido: []
+  dialogoDia2Final: []
   dialogueUI: {fileID: 1606390351499126681}
   playerController: {fileID: 0}
 --- !u!50 &936407280
@@ -2363,8 +2335,8 @@ RectTransform:
   m_GameObject: {fileID: 1186970800}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1641456474}
   m_Father: {fileID: 681241891}
@@ -2443,14 +2415,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7735849, g: 0.22258809, b: 0.22258809, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 1491800880183961708, guid: 49d0bf1eddbfc1247bf5e90c74d3e9bd, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2570,8 +2542,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 19.999987}
+  m_SizeDelta: {x: 0, y: 40.000027}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1641456475
 MonoBehaviour:
@@ -2602,8 +2574,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3537,6 +3509,7 @@ MonoBehaviour:
   - "O Grito do Ipiranga. O nascimento de uma na\xE7\xE3o. N\xE3o podemos deixar
     nada interferir."
   dialogoRepetido: []
+  dialogoDia2Final: []
   dialogueUI: {fileID: 1606390351499126681}
   playerController: {fileID: 0}
 --- !u!50 &1871118260
@@ -22990,6 +22963,7 @@ MonoBehaviour:
   dialogoDepoisDoPuzzle:
   - Estou ocupado agora...
   dialogoRepetido: []
+  dialogoDia2Final: []
   dialogueUI: {fileID: 1606390351499126681}
   playerController: {fileID: 0}
 --- !u!19719996 &5976583528551086434
@@ -25417,9 +25391,8 @@ SceneRoots:
   - {fileID: 1795345633}
   - {fileID: 466776826}
   - {fileID: 1154625895}
-  - {fileID: 1808748594}
-  - {fileID: 896497227}
   - {fileID: 566353521}
-  - {fileID: 705601033}
   - {fileID: 1574978329}
+  - {fileID: 1808748594}
+  - {fileID: 705601033}
   - {fileID: 1775221836}
