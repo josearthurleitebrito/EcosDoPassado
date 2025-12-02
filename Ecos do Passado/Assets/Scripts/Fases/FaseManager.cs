@@ -28,6 +28,9 @@ public class FaseManager : MonoBehaviour
     public DialogueUI2D dialogueUI;
 
     private int cientistasConversados = 0;
+    
+    // Variável para controlar o timer da mensagem do sistema
+    private Coroutine corrotinaMensagem;
 
     private void Awake()
     {
@@ -140,17 +143,34 @@ public class FaseManager : MonoBehaviour
         }
     }
 
+    // --- MUDANÇA AQUI: Lógica para mostrar e esconder automaticamente ---
     private void MostrarMensagemSistema(string mensagem)
     {
         if (dialogueUI != null)
         {
+            // Se já tiver um timer rodando, cancela ele para reiniciar a contagem
+            if (corrotinaMensagem != null) StopCoroutine(corrotinaMensagem);
+
             dialogueUI.ShowDialogue("", mensagem, null);
+            
+            // Inicia a contagem de 4 segundos
+            corrotinaMensagem = StartCoroutine(FecharDialogoRoutine(4.0f));
         }
         else
         {
             Debug.Log($"Mensagem de Sistema: {mensagem}");
         }
     }
+
+    private IEnumerator FecharDialogoRoutine(float tempo)
+    {
+        yield return new WaitForSeconds(tempo);
+        
+        if (dialogueUI != null) dialogueUI.HideDialogue();
+        
+        corrotinaMensagem = null;
+    }
+    // --------------------------------------------------------------------
 
     private void IniciarFinalDaFase()
     {

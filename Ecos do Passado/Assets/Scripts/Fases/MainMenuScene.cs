@@ -5,7 +5,7 @@ public class MainMenuManager : MonoBehaviour
 {
     [Header("Configuração")]
     [Tooltip("Escreva aqui o nome EXATO da cena do seu Prólogo.")]
-    public string nomeCenaInicial = "Prologo"; 
+    public string nomeCenaInicial = "Prólogo"; 
 
     // Função para o botão JOGAR
     public void Jogar()
@@ -17,7 +17,13 @@ public class MainMenuManager : MonoBehaviour
     // Função para o botão SAIR
     public void Sair()
     {
-        Debug.Log("O jogo fechou (Funciona apenas na Build final).");
-        Application.Quit();
+        Debug.Log("Saindo do jogo...");
+        
+        // Esse código faz funcionar tanto no Editor quanto no Jogo Final
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 }

@@ -5,25 +5,31 @@ public class BotoesFimDeJogo : MonoBehaviour
 {
     [Header("Configuração")]
     [Tooltip("Nome exato da cena do Menu Principal")]
-    public string nomeCenaMenu = "MenuPrincipal"; 
+    public string nomeCenaMenu = "MainMenu"; 
 
-    // Botão: TENTAR DE NOVO (Da tela Game Over)
+    // Botão: TENTAR DE NOVO
     public void TentarDeNovo()
     {
-        // Reinicia a fase atual
+        // Reinicia a cena atual
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    // Botão: MENU (Da tela Win)
+    // Botão: MENU
     public void IrParaMenu()
     {
         SceneManager.LoadScene(nomeCenaMenu);
     }
 
-    // Botão: SAIR (De ambas as telas)
+    // Botão: SAIR
     public void SairDoJogo()
     {
-        Debug.Log("O jogo fechou (Isso só funciona na Build final, não no Editor)");
-        Application.Quit();
+        Debug.Log("Saindo do jogo...");
+        
+        // Esse código faz funcionar tanto no Editor quanto no Jogo Final
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 }
