@@ -35,7 +35,8 @@ public class NPCDialogue2D : MonoBehaviour
     // Controle para saber se já contou para o progresso na etapa atual
     private bool jaConversouNessaEtapa = false;
 
-    void Start()
+  [System.Obsolete]
+  void Start()
     {
         // Auto-assign para evitar NullReferenceException
         if (dialogueUI == null)
@@ -136,6 +137,12 @@ public class NPCDialogue2D : MonoBehaviour
 
         if (playerController != null)
             playerController.enabled = true;
+
+        // Tenta avisar o Dia1Manager se ele existir na cena
+        if (Dia1Manager.Instance != null)
+        {
+            Dia1Manager.Instance.RegistrarConversaNPC(npcName);
+        }
 
         // --- LÓGICA DE PROGRESSO ---
         if (FaseManager.Instance != null && isRequiredForPuzzle)

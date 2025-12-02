@@ -37,7 +37,8 @@ public class WireManager : MonoBehaviour
         if (cam == null) Debug.LogWarning("[WireManager] Nenhuma Camera Main encontrada.");
     }
 
-    void OnEnable()
+  [System.Obsolete]
+  void OnEnable()
     {
         // Reseta o puzzle ao abrir
         BuildPuzzle();
@@ -48,7 +49,8 @@ public class WireManager : MonoBehaviour
         if (player) player.enabled = false;
     }
 
-    void OnDisable()
+  [System.Obsolete]
+  void OnDisable()
     {
         // Destravar o player ao fechar
         var player = FindObjectOfType<PlayerController>();

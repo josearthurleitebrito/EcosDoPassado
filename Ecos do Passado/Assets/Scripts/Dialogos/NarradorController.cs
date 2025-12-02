@@ -22,7 +22,8 @@ public class NarratorController : MonoBehaviour
     private bool isNarrating = false;
     private Action onDialogueFinished; // O que fazer quando acabar?
 
-    void Start()
+  [Obsolete]
+  void Start()
     {
         if (dialogueUI == null) dialogueUI = FindObjectOfType<DialogueUI2D>();
         if (playerController == null) playerController = FindObjectOfType<PlayerController>();

@@ -11,7 +11,7 @@ public class DialogueUI2D : MonoBehaviour
     public TMP_Text dialogueText;
 
     [Header("Configuracao do Efeito")]
-    public float typingSpeed = 0.03f; // tempo entre cada letra
+    public float typingSpeed = 0.03f; 
 
     private NPCDialogue2D currentNPC;
     private bool isActive = false;
@@ -19,26 +19,30 @@ public class DialogueUI2D : MonoBehaviour
     private string currentSentence;
     private Coroutine typingCoroutine;
 
-    void Start()
+    // Propriedade pública para outros scripts saberem se ainda está escrevendo
+    public bool IsTyping => isTyping; 
+
+    void Awake()
     {
-        panel.SetActive(false);
+        // Garante que esconde o painel ANTES de qualquer um tentar abrir
+        if(panel != null) panel.SetActive(false);
     }
 
     void Update()
     {
         if (!isActive) return;
 
-        // Se apertar espaco, pula ou vai para pr�xima frase
-        if (Input.GetKeyDown(KeyCode.Space))
+        // Lógica de Input
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0))
         {
             if (isTyping)
             {
-                // Termina de digitar instantaneamente
                 StopTypingInstantly();
             }
             else if (currentNPC != null)
             {
-                // Avan�a para a pr�xima frase
+                // Se for NPC, ele controla o avanço.
+                // Se for NARRADOR (currentNPC == null), quem controla o avanço é o script do NarradorController.
                 currentNPC.NextSentence();
             }
         }
@@ -46,19 +50,17 @@ public class DialogueUI2D : MonoBehaviour
 
     public void ShowDialogue(string name, string text, NPCDialogue2D npc)
     {
-        currentNPC = npc;
-        nameText.text = name;
-        dialogueText.text = text;
-        panel.SetActive(true);
+        currentNPC = npc; // Se for narrador, isso vira null. Tudo bem.
+        
+        // Proteção contra referências vazias
+        if(nameText != null) nameText.text = name;
+        if(dialogueText != null) dialogueText.text = ""; // Limpa antes de digitar
+        
+        if(panel != null) panel.SetActive(true);
         isActive = true;
 
         DisplaySentence(text);
-
-        // Se você guarda a referência do NPC, verifique se é null
-        this.currentNPC = npc;
     }
-
-
 
     public void UpdateText(string newSentence)
     {
@@ -67,7 +69,7 @@ public class DialogueUI2D : MonoBehaviour
 
     public void HideDialogue()
     {
-        panel.SetActive(false);
+        if(panel != null) panel.SetActive(false);
         isActive = false;
         currentNPC = null;
     }
@@ -84,11 +86,11 @@ public class DialogueUI2D : MonoBehaviour
     private IEnumerator TypeSentence(string sentence)
     {
         isTyping = true;
-        dialogueText.text = "";
+        if(dialogueText != null) dialogueText.text = "";
 
         foreach (char letter in sentence.ToCharArray())
         {
-            dialogueText.text += letter;
+            if(dialogueText != null) dialogueText.text += letter;
             yield return new WaitForSeconds(typingSpeed);
         }
 
@@ -100,7 +102,7 @@ public class DialogueUI2D : MonoBehaviour
         if (typingCoroutine != null)
             StopCoroutine(typingCoroutine);
 
-        dialogueText.text = currentSentence;
+        if(dialogueText != null) dialogueText.text = currentSentence;
         isTyping = false;
     }
 }
