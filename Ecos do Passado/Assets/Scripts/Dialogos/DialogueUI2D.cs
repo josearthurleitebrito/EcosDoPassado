@@ -28,7 +28,7 @@ public class DialogueUI2D : MonoBehaviour
     {
         if (!isActive) return;
 
-        // Se apertar espa�o, pula ou vai para pr�xima frase
+        // Se apertar espaco, pula ou vai para pr�xima frase
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (isTyping)
@@ -44,14 +44,18 @@ public class DialogueUI2D : MonoBehaviour
         }
     }
 
-    public void ShowDialogue(string npcName, string firstSentence, NPCDialogue2D npc)
+    public void ShowDialogue(string name, string text, NPCDialogue2D npc)
     {
         currentNPC = npc;
-        nameText.text = npcName;
+        nameText.text = name;
+        dialogueText.text = text;
         panel.SetActive(true);
         isActive = true;
 
-        DisplaySentence(firstSentence);
+        DisplaySentence(text);
+
+        // Se você guarda a referência do NPC, verifique se é null
+        this.currentNPC = npc;
     }
 
 
