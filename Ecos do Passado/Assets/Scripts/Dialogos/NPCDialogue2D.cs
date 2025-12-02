@@ -144,6 +144,11 @@ public class NPCDialogue2D : MonoBehaviour
             Dia1Manager.Instance.RegistrarConversaNPC(npcName);
         }
 
+        if (Dia2Manager.Instance != null)
+        {
+            Dia2Manager.Instance.RegistrarConversaNPC(npcName);
+        }
+
         // --- LÓGICA DE PROGRESSO ---
         if (FaseManager.Instance != null && isRequiredForPuzzle)
         {

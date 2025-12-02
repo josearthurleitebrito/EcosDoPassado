@@ -16,3 +16,13 @@ public enum Dia1State
     Vitoria,            // Narrador -> Dia 2
     GameOver            // Escolheu errado
 }
+
+public enum Dia2State
+{
+    Intro,              // Narrador e Cientistas falando
+    FalarComViajante,   // Player deve ir até o acampamento
+    ProcurandoBarris,   // DESAFIO VALENDO: Timer correndo, player caçando barris
+    RelatarEquipe,       // Voltar ao acampamento e falar com a Equipe
+    Vitoria,            // Achou os 3 -> Narrador final
+    GameOver            // Tempo acabou -> Tela de derrota
+}
